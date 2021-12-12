@@ -1,0 +1,9 @@
+pandas
+geopandas
+numpy
+streamlit
+streamlit-aggrid
+plotly
+Rtree
+requests
+owslib
