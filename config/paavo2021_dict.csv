@@ -1,0 +1,110 @@
+name,customName
+posti_alue,Postinumeroalue
+nimi,"Postinumeroalueen nimi"
+namn,"Postinumeroalueen nimi (ruotsi)"
+euref_x,"X-koordinaatti metreinä"
+euref_y,"Y-koordinaatti metreinä"
+pinta_ala,"Postinumeroalueen pinta-ala"
+vuosi,Vuosi
+kunta,Kunta
+he_vakiy,"Asukkaat yhteensä"
+he_miehet,Miehet
+he_naiset,Naiset
+he_kika,"Asukkaiden keski-ikä"
+he_0_2,0-2-vuotiaat
+he_3_6,3-6-vuotiaat
+he_7_12,7-12-vuotiaat
+he_13_15,13-15-vuotiaat
+he_16_17,16-17-vuotiaat
+he_18_19,18-19-vuotiaat
+he_20_24,20-24-vuotiaat
+he_25_29,25-29-vuotiaat
+he_30_34,30-34-vuotiaat
+he_35_39,35-39-vuotiaat
+he_40_44,40-44-vuotiaat
+he_45_49,45-49-vuotiaat
+he_50_54,50-54-vuotiaat
+he_55_59,55-59-vuotiaat
+he_60_64,60-64-vuotiaat
+he_65_69,65-69-vuotiaat
+he_70_74,70-74-vuotiaat
+he_75_79,75-79-vuotiaat
+he_80_84,80-84-vuotiaat
+he_85_,"85 vuotta täyttäneet"
+ko_ika18y,"18 vuotta täyttäneet"
+ko_perus,"Perusasteen suorittaneet"
+ko_koul,"Koulutetut yhteensä"
+ko_yliop,"Ylioppilastutkinnon suorittaneet"
+ko_ammat,"Ammatillisen tutkinnon suorittaneet"
+ko_al_kork,"Alemman korkeakoulututkinnon suorittaneet"
+ko_yl_kork,"Ylemmän korkeakoulututkinnon suorittaneet"
+hr_tuy,"18 vuotta täyttäneet yhteensä"
+hr_ktu,"Asukkaiden keskitulot"
+hr_mtu,"Asukkaiden mediaanitulot"
+hr_pi_tul,"Alimpaan tuloluokkaan kuuluvat asukkaat"
+hr_ke_tul,"Keskimmäiseen tuloluokkaan kuuluvat asukkaat"
+hr_hy_tul,"Ylimpään tuloluokkaan kuuluvat asukkaat"
+hr_ovy,"Asukkaiden ostovoimakertymä"
+te_taly,"Taloudet yhteensä"
+te_takk,"Talouksien keskikoko"
+te_as_valj,Asumisväljyys
+te_nuor,"Nuorten yksinasuvien taloudet"
+te_eil_np,"Lapsettomat nuorten parien taloudet"
+te_laps,Lapsitaloudet
+te_plap,"Pienten lasten taloudet"
+te_aklap,"Alle kouluikäisten lasten taloudet"
+te_klap,"Kouluikäisten lasten taloudet"
+te_teini,"Teini-ikäisten lasten taloudet"
+te_aik,"Aikuisten taloudet"
+te_elak,"Eläkeläisten taloudet"
+te_omis_as,"Omistusasunnoissa asuvat taloudet"
+te_vuok_as,"Vuokra-asunnoissa asuvat taloudet"
+te_muu_as,"Muissa asunnoissa asuvat taloudet"
+tr_kuty,"Taloudet yhteensä"
+tr_ktu,"Talouksien keskitulot"
+tr_mtu,"Talouksien mediaanitulot"
+tr_pi_tul,"Alimpaan tuloluokkaan kuuluvat taloudet"
+tr_ke_tul,"Keskimmäiseen tuloluokkaan kuuluvat taloudet"
+tr_hy_tul,"Ylimpään tuloluokkaan kuuluvat taloudet"
+tr_ovy,"Talouksien ostovoimakertymä"
+ra_ke,"Kesämökit yhteensä"
+ra_raky,"Rakennukset yhteensä"
+ra_muut,"Muut rakennukset yhteensä"
+ra_asrak,"Asuinrakennukset yhteensä"
+ra_asunn,Asunnot
+ra_as_kpa,"Asuntojen keskipinta-ala"
+ra_pt_as,Pientaloasunnot
+ra_kt_as,Kerrostaloasunnot
+tp_tyopy,"Työpaikat yhteensä"
+tp_alku_a,"Alkutuotannon työpaikat"
+tp_jalo_bf,"Jalostuksen työpaikat"
+tp_palv_gu,"Palveluiden työpaikat"
+tp_a_maat,"A Maatalous"
+tp_b_kaiv,"B Kaivostoiminta ja louhinta"
+tp_c_teol,"C Teollisuus"
+tp_d_ener,"D Sähkö-"
+tp_e_vesi,"E Vesihuolto"
+tp_f_rake,"F Rakentaminen"
+tp_g_kaup,"G Tukku- ja vähittäiskauppa; moottoriajoneuvojen ja moottoripyörien korjaus"
+tp_h_kulj,"H Kuljetus ja varastointi"
+tp_i_majo,"I Majoitus- ja ravitsemistoiminta"
+tp_j_info,"J Informaatio ja viestintä"
+tp_k_raho,"K Rahoitus- ja vakuutustoiminta"
+tp_l_kiin,"L Kiinteistöalan toiminta"
+tp_m_erik,"M Ammatillinen"
+tp_n_hall,"N Hallinto- ja tukipalvelutoiminta"
+tp_o_julk,"O Julkinen hallinto ja maanpuolustus; pakollinen sosiaalivakuutus"
+tp_p_koul,"P Koulutus"
+tp_q_terv,"Q Terveys- ja sosiaalipalvelut"
+tp_r_taid,"R Taiteet"
+tp_s_muup,"S Muu palvelutoiminta"
+tp_t_koti,"T Kotitalouksien toiminta työnantajina; kotitalouksien eriyttämätön toiminta tavaroiden ja palveluiden tuottamiseksi omaan käyttöön"
+tp_u_kans,"U Kansainvälisten organisaatioiden ja toimielinten toiminta"
+tp_x_tunt,"X Toimiala tuntematon"
+pt_vakiy,"Väestö yhteensä"
+pt_tyoll,Työlliset
+pt_tyott,Työttömät
+pt_0_14,"Lapset 0-14 -vuotiaat"
+pt_opisk,Opiskelijat
+pt_elakel,Eläkeläiset
+pt_muut,Muut
