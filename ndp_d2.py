@@ -38,6 +38,7 @@ kuntalista = kuntakoodit['kunta'].tolist()
 default_ix = kuntalista.index('Espoo')
 st.title(':point_down:')
 valinta = st.selectbox('Valitse kunta ja taulukosta postinumeroalue', kuntalista, index=default_ix)
+# hae pno data..
 taulukkodata = pno_data(valinta)
 
 # TABLE ..
@@ -53,54 +54,60 @@ data = AgGrid(taulukkodata,
               enable_enterprise_modules=True,
               allow_unsafe_jscode=True,
               update_mode=GridUpdateMode.SELECTION_CHANGED)
-
 selected_row = data["selected_rows"]
-pno_alue = pd.DataFrame(selected_row)
+pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
 
 # map
 if len(selected_row) != 0:
-    pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
-    pno_plot = taulukkodata[taulukkodata['Postinumeroalueen nimi'] == pno_alue_nimi]
-    rak = mtk_rak_pno(pno_plot)
-    # tehokkuusluvut
-    rak['kerrosala-arvio'] = 0
-    rak.loc[rak['kerrosluku'] == 2, 'kerrosala-arvio'] = rak.area * 5.5
-    rak.loc[rak['kerrosluku'] == 1, 'kerrosala-arvio'] = rak.area * 1.4
+    with st.expander("Valitun postinumeroalueen rakennukset kartalla"):
+        pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
+        pno_plot = taulukkodata[taulukkodata['Postinumeroalueen nimi'] == pno_alue_nimi]
+        rak = mtk_rak_pno(pno_plot)
+        # tehokkuusluvut
+        rak['kerrosala-arvio'] = 0
+        rak.loc[rak['kerrosluku'] == 2, 'kerrosala-arvio'] = rak.area * 5.5
+        rak.loc[rak['kerrosluku'] == 1, 'kerrosala-arvio'] = rak.area * 1.4
 
-    col_show = ['rakennustyyppi','kayttotarkoitus','kerrosala-arvio','geometry']
-    plot = pno_plot.overlay(rak,how='intersection')[col_show].to_crs(4326)
-    plot['kerrosala-arvio'] = (plot['kerrosala-arvio'] / 10).apply(np.ceil).astype(int) * 10
-    # plot
-    lat = plot.unary_union.centroid.y
-    lon = plot.unary_union.centroid.x
-    fig = px.choropleth_mapbox(plot,
-                               geojson=plot.geometry,
-                               locations=plot.index,
-                               color=plot['kayttotarkoitus'].astype(str),
-                               hover_name="kayttotarkoitus",
-                               hover_data=['kerrosala-arvio'],
-                               mapbox_style="carto-positron",
-                               #color_continuous_scale=px.colors.qualitative.G10,
-                               color_discrete_map={
-                                   "Asuinrakennus": "brown",
-                                   "Liike- tai julkinen rakennus": "orange",
-                                   "Lomarakennus": "yellow",
-                                   "Teollinen rakennus": "grey",
-                                   "Muu rakennus": "black",
-                                   "Luokittelematon": "light grey",
-                                   "Kirkkorakennus": "magenta",
-                                   "Kirkollinen rakennus": "purple"},
-                               center={"lat": lat, "lon": lon},
-                               zoom=13,
-                               opacity=0.5,
-                               width=1200,
-                               height=700
-                               )
-    fig.update_layout(title_text="Plot", margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=700)
+        col_show = ['rakennustyyppi','kayttotarkoitus','kerrosala-arvio','geometry']
+        plot = pno_plot.overlay(rak,how='intersection')[col_show].to_crs(4326)
+        plot['kerrosala-arvio'] = (plot['kerrosala-arvio'] / 10).apply(np.ceil).astype(int) * 10
+        # plot
+        lat = plot.unary_union.centroid.y
+        lon = plot.unary_union.centroid.x
+        fig = px.choropleth_mapbox(plot,
+                                   geojson=plot.geometry,
+                                   locations=plot.index,
+                                   color=plot['kayttotarkoitus'].astype(str),
+                                   hover_name="kayttotarkoitus",
+                                   hover_data=['kerrosala-arvio'],
+                                   mapbox_style="carto-positron",
+                                   #color_continuous_scale=px.colors.qualitative.G10,
+                                   color_discrete_map={
+                                       "Asuinrakennus": "brown",
+                                       "Liike- tai julkinen rakennus": "orange",
+                                       "Lomarakennus": "yellow",
+                                       "Teollinen rakennus": "grey",
+                                       "Muu rakennus": "black",
+                                       "Luokittelematon": "light grey",
+                                       "Kirkkorakennus": "magenta",
+                                       "Kirkollinen rakennus": "purple"},
+                                   center={"lat": lat, "lon": lon},
+                                   zoom=13,
+                                   opacity=0.5,
+                                   width=1200,
+                                   height=700
+                                   )
+        fig.update_layout(title_text="Plot", margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=700)
 
-    # generate plot
-    with st.spinner('Kokoaa rakennuksia...'):
-        st.plotly_chart(fig, use_container_width=True)
+        # generate plot
+        with st.spinner('Kokoaa rakennuksia...'):
+            st.plotly_chart(fig, use_container_width=True)
+
+            def df_csv(df):
+                df_csv = df.drop(columns=['kerrosala-arvio'])
+                return df_csv.to_csv().encode('utf-8')
+            csv = df_csv(plot.round(0))
+            st.download_button(label="Lataa rakennukset CSV-tiedostona", data=csv, file_name=f'rakennukset_{pno_alue_nimi}.csv', mime='text/csv')
 
     with st.expander("Kerrosalamäärän jakautuminen"):
         with st.spinner('Analysoi rakennuksia...'):
@@ -110,7 +117,7 @@ if len(selected_row) != 0:
             plot_out = plot[(plot['kerrosala-arvio'] < high_limit) & (plot['kerrosala-arvio'] > low_limit)]
             #kemvalinta = st.radio('Valitse:',('kerrosala-arvio','klusterikerrosala'))
             fig_h = px.histogram(plot_out,
-                                 title=f'{pno_alue_nimi} - Kerrosalahistogrammi (kvantaalit 2-98%)',
+                                 title=f'{pno_alue_nimi} - Kerrosalahistogrammi',
                                  x='kerrosala-arvio', color="kayttotarkoitus", barmode="overlay",
                                  color_discrete_map={
                                      "Asuinrakennus": "brown",
@@ -120,34 +127,47 @@ if len(selected_row) != 0:
                                      "Muu rakennus": "black",
                                      "Luokittelematon": "light grey",
                                      "Kirkkorakennus": "magenta",
-                                     "Kirkollinen rakennus": "purple"}
+                                     "Kirkollinen rakennus": "purple"},
+                                 labels = {
+                                    "kerrosala-arvio": "Rakennuskohtaisten kerrosalamäärän jakauma",
+                                    "kayttotarkoitus": "Käyttötarkoitus"
+                                 }
                                  )
             st.plotly_chart(fig_h, use_container_width=True)
 
         selite = '''
         Kerrosala-arviot ovat karkeita arvioita maastotietokannan rakennusten kerroslukuluokan ja rakennustyypin perusteella.
         ([MML](https://www.maanmittauslaitos.fi/rakennusten-kyselypalvelu/tekninen-kuvaus))
+        Huom! Ala- ja yläkvantaaliprosentit (pienimmät ja suurimmat rakennukset) on poistettu graafista.
         '''
         st.markdown(selite, unsafe_allow_html=True)
 
-        def df_csv(df):
-            df_csv = df.drop(columns=['kerrosala-arvio'])
-            return df_csv.to_csv().encode('utf-8')
-        csv = df_csv(plot.round(0))
-        st.download_button(label="Lataa rakennukset CSVnä", data=csv, file_name=f'rakennukset_{pno_alue_nimi}.csv', mime='text/csv')
+# kuntascat
+with st.expander(f"Kuntagraafi {valinta}"):
+    featlist = taulukkodata.columns.tolist()
+    default_x = featlist.index('Rakennukset yhteensä')
+    default_y = featlist.index('Asukkaat yhteensä')
+    xaks = st.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
+    yaks = st.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
+    @st.cache(allow_output_mutation=True)
+    def scatplot1(df):
+        scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
+                           hover_name='Postinumeroalueen nimi')
+        scat1.update_layout(legend={'traceorder': 'normal'})
+        return scat1
+    scat1 = scatplot1(taulukkodata)
+    st.plotly_chart(scat1, use_container_width=True)
 
 
 footer_title = '''
 ---
 :see_no_evil: **Naked Density Project** 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-yellow.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 '''
-st.markdown(footer_title) # https://gist.github.com/rxaviers/7360908
-
-footer_fin = '<p style="font-family:sans-serif; color:grey; font-size: 12px;">\
+st.markdown(footer_title)
+footer_fin = '<p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">\
         Naked Density Projekti on osa Teemu Jaman väitöskirjatutkimusta Aalto Yliopistossa. \
         Projektissa tutkitaan maankäytön tehokkuuden ja kaupunkirakenteen fyysisten piirteiden\
         vaikutuksia palveluiden kehittymiseen data-analytiikan ja koneoppimisen avulla.\
         </p>'
-
 st.markdown(footer_fin, unsafe_allow_html=True)
