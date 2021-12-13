@@ -129,7 +129,7 @@ if len(selected_row) != 0:
                                      "Kirkkorakennus": "magenta",
                                      "Kirkollinen rakennus": "purple"},
                                  labels = {
-                                    "kerrosala-arvio": "Rakennuskohtaisten kerrosalamäärän jakauma",
+                                    "kerrosala-arvio": "Rakennuskohtaisten kerrosalamäärien jakauma",
                                     "kayttotarkoitus": "Käyttötarkoitus"
                                  }
                                  )
