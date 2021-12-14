@@ -37,7 +37,9 @@ kuntakoodit = pd.read_csv('config/kunta_dict.csv', index_col=False, header=0).as
 kuntalista = kuntakoodit['kunta'].tolist()
 default_ix = kuntalista.index('Espoo')
 st.title(':point_down:')
+# kuntavalitsin
 valinta = st.selectbox('Valitse kunta ja taulukosta postinumeroalue', kuntalista, index=default_ix)
+
 # hae pno data..
 taulukkodata = pno_data(valinta)
 
@@ -51,7 +53,7 @@ from st_aggrid.shared import GridUpdateMode
 
 data = AgGrid(taulukkodata,
               gridOptions=gridOptions,
-              enable_enterprise_modules=True,
+              enable_enterprise_modules=False,
               allow_unsafe_jscode=True,
               update_mode=GridUpdateMode.SELECTION_CHANGED)
 selected_row = data["selected_rows"]
