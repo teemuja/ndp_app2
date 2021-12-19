@@ -39,9 +39,28 @@ default_ix = kuntalista.index('Espoo')
 st.title(':point_down:')
 # kuntavalitsin
 valinta = st.selectbox('Valitse kunta ja taulukosta postinumeroalue', kuntalista, index=default_ix)
-
 # hae pno data..
 taulukkodata = pno_data(valinta)
+
+# kuntascat
+with st.expander(f"Kuntagraafi {valinta}"):
+    featlist = taulukkodata.columns.tolist()
+    default_x = featlist.index('Rakennukset yhteensä')
+    default_y = featlist.index('Asukkaat yhteensä')
+    col1,col2 = st.columns([1,1])
+    xaks = col1.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
+    yaks = col2.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
+    @st.cache(allow_output_mutation=True)
+    def scatplot1(df):
+        scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
+                           hover_name='Postinumeroalueen nimi')
+        scat1.update_layout(legend={'traceorder': 'normal'})
+        return scat1
+    scat1 = scatplot1(taulukkodata)
+    st.plotly_chart(scat1, use_container_width=True)
+    # save csv nappi
+    pno_csv = taulukkodata.to_csv().encode('utf-8')
+    st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
 # TABLE ..
 from st_aggrid.grid_options_builder import GridOptionsBuilder
@@ -61,7 +80,7 @@ pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
 
 # map
 if len(selected_row) != 0:
-    with st.expander("Valitun postinumeroalueen rakennukset kartalla"):
+    with st.expander("Postinumeroalueen rakennukset kartalla", expanded=True):
         pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
         pno_plot = taulukkodata[taulukkodata['Postinumeroalueen nimi'] == pno_alue_nimi]
         rak = mtk_rak_pno(pno_plot)
@@ -105,11 +124,11 @@ if len(selected_row) != 0:
         with st.spinner('Kokoaa rakennuksia...'):
             st.plotly_chart(fig, use_container_width=True)
 
-            def df_csv(df):
+            def raks_to_csv(df):
                 df_csv = df.drop(columns=['kerrosala-arvio'])
                 return df_csv.to_csv().encode('utf-8')
-            csv = df_csv(plot.round(0))
-            st.download_button(label="Lataa rakennukset CSV-tiedostona", data=csv, file_name=f'rakennukset_{pno_alue_nimi}.csv', mime='text/csv')
+            raks_csv = raks_to_csv(plot.round(0))
+            st.download_button(label="Lataa rakennukset CSV-tiedostona", data=raks_csv, file_name=f'rakennukset_{pno_alue_nimi}.csv', mime='text/csv')
 
     with st.expander("Kerrosalamäärän jakautuminen"):
         with st.spinner('Analysoi rakennuksia...'):
@@ -144,27 +163,10 @@ if len(selected_row) != 0:
         '''
         st.markdown(selite, unsafe_allow_html=True)
 
-# kuntascat
-with st.expander(f"Kuntagraafi {valinta}"):
-    featlist = taulukkodata.columns.tolist()
-    default_x = featlist.index('Rakennukset yhteensä')
-    default_y = featlist.index('Asukkaat yhteensä')
-    xaks = st.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
-    yaks = st.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
-    @st.cache(allow_output_mutation=True)
-    def scatplot1(df):
-        scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
-                           hover_name='Postinumeroalueen nimi')
-        scat1.update_layout(legend={'traceorder': 'normal'})
-        return scat1
-    scat1 = scatplot1(taulukkodata)
-    st.plotly_chart(scat1, use_container_width=True)
-
-
 footer_title = '''
 ---
-:see_no_evil: **Naked Density Project** 
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-yellow.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+:see_no_evil: **Naked Density Project**
+[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://lbesson.mit-license.org/) 
 '''
 st.markdown(footer_title)
 footer_fin = '<p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">\
