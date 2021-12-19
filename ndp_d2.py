@@ -50,6 +50,7 @@ with st.expander(f"Kuntagraafi {valinta}"):
     col1,col2 = st.columns([1,1])
     xaks = col1.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
     yaks = col2.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
+
     @st.cache(allow_output_mutation=True)
     def scatplot1(df):
         scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
