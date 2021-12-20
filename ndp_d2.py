@@ -60,7 +60,7 @@ with st.expander(f"Kuntagraafi {valinta}"):
     scat1 = scatplot1(taulukkodata)
     st.plotly_chart(scat1, use_container_width=True)
     # save csv nappi
-    pno_csv = taulukkodata.to_csv().encode('utf-8')
+    pno_csv = taulukkodata.to_crs(4326).to_csv().encode('utf-8')
     st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
 # TABLE ..
@@ -115,7 +115,7 @@ if len(selected_row) != 0:
                                        "Kirkollinen rakennus": "purple"},
                                    center={"lat": lat, "lon": lon},
                                    zoom=13,
-                                   opacity=0.5,
+                                   opacity=0.8,
                                    width=1200,
                                    height=700
                                    )
