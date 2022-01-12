@@ -1,6 +1,10 @@
 # apis for ndp_d2 betaman edition
 import requests
+
+from owslib.fes import *
+from owslib.etree import etree
 from owslib.wfs import WebFeatureService
+
 from io import StringIO
 import pandas as pd
 import geopandas as gpd
@@ -26,6 +30,37 @@ def pno_data(kunta,vuosi=2021):
     selkopaavo = paavodata.rename(columns=dict_feat).sort_values('Kunta')
     pno_valinta = selkopaavo[selkopaavo['Kunta'] == kunta].sort_values('Asukkaat yhteensä', ascending=False)
     return pno_valinta
+
+@st.cache(allow_output_mutation=True)
+def pno_hist(kunta,pno):
+    url = 'http://geo.stat.fi/geoserver/postialue/wfs'
+    wfs11 = WebFeatureService(url=url, version='1.1.0')#, auth=auth)
+    kuntakoodit = pd.read_csv('config/kunta_dict.csv', index_col=False, header=0).astype(str)
+    kuntakoodit['koodi'] = kuntakoodit['koodi'].str.zfill(3)
+    kunta_dict_inv = pd.Series(kuntakoodit.koodi.values, index=kuntakoodit.kunta).to_dict()
+    koodi = kunta_dict_inv.get(kunta)
+    filter = PropertyIsLike(propertyname='kunta', literal=koodi, wildCard='*')
+    filterxml = etree.tostring(filter.toXML()).decode("utf-8")
+
+    # similar cols for different yrs
+    cols = ['Postinumeroalueen nimi', 'Vuosi',
+            'Asukkaat yhteensä', 'Asukkaiden keski-ikä', 'Ylemmän korkeakoulututkinnon suorittaneet',
+            'Lapsitaloudet', 'Eläkeläisten taloudet', 'Omistusasunnoissa asuvat taloudet', 'Talouksien mediaanitulot',
+            'Rakennukset yhteensä', 'Kesämökit yhteensä', 'Asuntojen keskipinta-ala', 'Pientaloasunnot',
+            'Kerrostaloasunnot',
+            'Jalostuksen työpaikat', 'Palveluiden työpaikat', 'Työttömät'
+            ]
+    yrs = ['2015','2016','2017','2018','2019','2020','2021']
+    pno_out = pd.DataFrame()
+    # loop yrs
+    for y in yrs:
+        response = wfs11.getfeature(typename=f'postialue:pno_tilasto_{y}', filter=filterxml, outputFormat='json')
+        paavodata = gpd.read_file(response)
+        dict_feat = pd.read_csv('config/paavo2021_dict.csv', skipinitialspace=True, header=None, index_col=0,squeeze=True).to_dict()
+        selkopaavo = paavodata.rename(columns=dict_feat)[cols]
+        pno_yr = selkopaavo.loc[selkopaavo['Postinumeroalueen nimi'] == pno].reset_index()
+        pno_out = pno_out.append(pno_yr, ignore_index=True)
+    return pno_out
 
 @st.cache(allow_output_mutation=True)
 def mtk_rak_pno(pno):

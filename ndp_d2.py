@@ -8,10 +8,11 @@ import plotly.express as px
 
 from apis import pno_data
 from apis import mtk_rak_pno
+from apis import pno_hist
 
-# page setups
-st.set_page_config(page_title="NDP App d2", layout="wide")
-padding = 3
+# page setup
+st.set_page_config(page_title="NDP App d3", layout="wide")
+padding = 2
 st.markdown(f""" <style>
     .reportview-container .main .block-container{{
         padding-top: {padding}rem;
@@ -21,15 +22,27 @@ st.markdown(f""" <style>
     }} </style> """, unsafe_allow_html=True)
 
 header = '<p style="font-family:sans-serif; color:grey; font-size: 12px;">\
-        NDP project app2 V0.75 "Another Betaman"\
+        NDP project app2 V0.77 "Another Betaman"\
         </p>'
 st.markdown(header, unsafe_allow_html=True)
+# plot size setup
+#px.defaults.width = 600
+px.defaults.height = 600
 
 # page title
 header_title = '''
 :see_no_evil: **Naked Density Project**
 '''
 st.subheader(header_title)
+header_text = '''
+<p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">
+Naked Density Projekti on <a href="https://github.com/teemuja" target="_blank">Teemu Jaman</a> väitöskirjatutkimus Aalto Yliopistossa.
+Projektissa tutkitaan maankäytön tehokkuuden ja kaupunkirakenteen fyysisten piirteiden
+vaikutuksia kestävään kehitykseen data-analytiikan avulla.
+</p>
+'''
+st.markdown(header_text, unsafe_allow_html=True)
+
 st.markdown("""---""")
 st.title('Rakennukset postinumeroalueittain Suomessa')
 
@@ -42,7 +55,7 @@ valinta = st.selectbox('Valitse kunta ja taulukosta postinumeroalue', kuntalista
 # hae pno data..
 taulukkodata = pno_data(valinta)
 
-# kuntascat
+# scat
 with st.expander(f"Kuntagraafi {valinta}"):
     featlist = taulukkodata.columns.tolist()
     default_x = featlist.index('Rakennukset yhteensä')
@@ -164,15 +177,16 @@ if len(selected_row) != 0:
         '''
         st.markdown(selite, unsafe_allow_html=True)
 
+with st.expander(f"Aluekehitys {pno_alue_nimi}"):
+    historia = pno_hist(valinta,pno_alue_nimi)
+    cols = historia.drop(columns=['index','Postinumeroalueen nimi','Vuosi']).columns.tolist()
+    selected_cols = st.multiselect('Valitse tiedot',cols)
+    fig_pno_hist = px.line(historia, x="Vuosi", y=selected_cols, log_y=False)
+    st.plotly_chart(fig_pno_hist, use_container_width=True)
+
 footer_title = '''
 ---
 :see_no_evil: **Naked Density Project**
 [![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://lbesson.mit-license.org/) 
 '''
 st.markdown(footer_title)
-footer_fin = '<p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">\
-        Naked Density Projekti on osa Teemu Jaman väitöskirjatutkimusta Aalto Yliopistossa. \
-        Projektissa tutkitaan maankäytön tehokkuuden ja kaupunkirakenteen fyysisten piirteiden\
-        vaikutuksia palveluiden kehittymiseen data-analytiikan ja koneoppimisen avulla.\
-        </p>'
-st.markdown(footer_fin, unsafe_allow_html=True)
