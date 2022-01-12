@@ -177,12 +177,15 @@ if len(selected_row) != 0:
         '''
         st.markdown(selite, unsafe_allow_html=True)
 
-with st.expander(f"Aluekehitys {pno_alue_nimi}"):
-    historia = pno_hist(valinta,pno_alue_nimi)
-    cols = historia.drop(columns=['index','Postinumeroalueen nimi','Vuosi']).columns.tolist()
-    selected_cols = st.multiselect('Valitse tiedot',cols)
-    fig_pno_hist = px.line(historia, x="Vuosi", y=selected_cols, log_y=False)
-    st.plotly_chart(fig_pno_hist, use_container_width=True)
+if len(selected_row) != 0:
+    with st.expander(f"Aluekehitys {pno_alue_nimi}"):
+        historia = pno_hist(valinta, pno_alue_nimi)
+        cols = historia.drop(columns=['index','Postinumeroalueen nimi','Vuosi']).columns.tolist()
+        def_ix = cols.index('Asukkaat yhteensä')
+        mycol = st.selectbox('Valitse tieto', cols, index=def_ix)
+        fig_pno_hist = px.line(historia, x="Vuosi", y=mycol, log_y=False)
+        st.plotly_chart(fig_pno_hist, use_container_width=True)
+
 
 footer_title = '''
 ---
