@@ -84,7 +84,7 @@ with st.expander(f"Kuntagraafi {valinta}", expanded=False):
     def scatplot1(df):
         scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
                            hover_name='Postinumeroalueen nimi')
-        scat1.update_layout(legend={'traceorder': 'normal'}, yaxis_title="Arvo")
+        scat1.update_layout(legend={'traceorder': 'normal'})
         return scat1
     scat1 = scatplot1(taulukkodata)
     st.plotly_chart(scat1, use_container_width=True)
