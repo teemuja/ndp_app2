@@ -25,6 +25,7 @@ header = '<p style="font-family:sans-serif; color:grey; font-size: 12px;">\
         NDP project app2 V0.77 "Another Betaman"\
         </p>'
 st.markdown(header, unsafe_allow_html=True)
+
 # plot size setup
 #px.defaults.width = 600
 px.defaults.height = 600
@@ -92,10 +93,34 @@ with st.expander(f"Kuntagraafi {valinta}", expanded=False):
     pno_csv = taulukkodata.to_crs(4326).to_csv().encode('utf-8')
     st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
+if len(selected_row) != 0:
+    with st.expander("Aluekehitys", expanded=False):
+        pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
+        historia = pno_hist(valinta, pno_alue_nimi).drop(columns=['index','Postinumeroalueen nimi'])
+        hist = historia.drop(columns=['Vuosi'])
+        hist[hist < 0] = 0
+        for column in hist:
+            hist[column] = round(hist[column] / (hist[column].iat[0]),3).mul(100)
+        hist.replace([np.inf, -np.inf], np.nan, inplace=True)
+        cols = hist.columns.tolist()
+        #mycol = st.multiselect('Valitse tiedot', cols, default=hist.columns.tolist())#, index=def_ix)
+        hist['Vuosi'] = historia['Vuosi']
+        fig_pno_hist = px.line(hist, x="Vuosi", y=cols, title=f'{pno_alue_nimi} - Muutos prosentteina vuodesta 2015',
+                               labels={'variable':'Selite', 'value':'muutos %'})
+        st.plotly_chart(fig_pno_hist, use_container_width=True)
+        st.caption("data: [stat.fi](https://www.stat.fi/tup/paavo/index.html)")
+        #
+        def raks_to_csv(df):
+            df_csv = df.drop(columns=['kerrosala-arvio'])
+            return df_csv.to_csv().encode('utf-8')
+
+        hist_csv = historia.to_csv().encode('utf-8')
+        st.download_button(label="Lataa CSV-tiedostona", data=hist_csv,file_name=f'Muutos_{pno_alue_nimi}.csv', mime='text/csv')
+
 # rakennukset kartalla
 if len(selected_row) != 0:
     with st.expander("Rakennukset kartalla", expanded=False):
-        pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
+
         pno_plot = taulukkodata[taulukkodata['Postinumeroalueen nimi'] == pno_alue_nimi]
         rak = mtk_rak_pno(pno_plot)
         # tehokkuusluvut
@@ -178,29 +203,6 @@ if len(selected_row) != 0:
         Huom! Ala- ja yläkvantaaliprosentit (pienimmät ja suurimmat rakennukset) on poistettu graafista.
         '''
         st.markdown(selite, unsafe_allow_html=True)
-
-if len(selected_row) != 0:
-    with st.expander("Aluekehitys", expanded=False):
-        historia = pno_hist(valinta, pno_alue_nimi).drop(columns=['index','Postinumeroalueen nimi'])
-        hist = historia.drop(columns=['Vuosi'])
-        for column in hist:
-            hist[column] = round(hist[column] / (hist[column].iat[0] - 1),3).mul(100)
-        hist.replace([np.inf, -np.inf], np.nan, inplace=True)
-        cols = hist.columns.tolist()
-        #mycol = st.multiselect('Valitse tiedot', cols, default=hist.columns.tolist())#, index=def_ix)
-        hist['Vuosi'] = historia['Vuosi']
-        fig_pno_hist = px.line(hist, x="Vuosi", y=cols, title=f'{pno_alue_nimi} - Muutos prosentteina vuodesta 2015',
-                               labels={'variable':'Selite'})
-        st.plotly_chart(fig_pno_hist, use_container_width=True)
-        st.caption("data: [stat.fi](https://www.stat.fi/tup/paavo/index.html)")
-        #
-        def raks_to_csv(df):
-            df_csv = df.drop(columns=['kerrosala-arvio'])
-            return df_csv.to_csv().encode('utf-8')
-
-        hist_csv = historia.to_csv().encode('utf-8')
-        st.download_button(label="Lataa CSV-tiedostona", data=hist_csv,file_name=f'Muutos_{pno_alue_nimi}.csv', mime='text/csv')
-
 
 
 footer_title = '''
