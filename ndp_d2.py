@@ -44,7 +44,7 @@ vaikutuksia kestävään kehitykseen data-analytiikan avulla.
 st.markdown(header_text, unsafe_allow_html=True)
 
 st.markdown("""---""")
-st.title('Rakennukset postinumeroalueittain Suomessa')
+st.title('Koko Suomi datana')
 
 kuntakoodit = pd.read_csv('config/kunta_dict.csv', index_col=False, header=0).astype(str)
 kuntalista = kuntakoodit['kunta'].tolist()
@@ -54,27 +54,6 @@ st.title(':point_down:')
 valinta = st.selectbox('Valitse kunta ja taulukosta postinumeroalue', kuntalista, index=default_ix)
 # hae pno data..
 taulukkodata = pno_data(valinta)
-
-# scat
-with st.expander(f"Kuntagraafi {valinta}"):
-    featlist = taulukkodata.columns.tolist()
-    default_x = featlist.index('Rakennukset yhteensä')
-    default_y = featlist.index('Asukkaat yhteensä')
-    col1,col2 = st.columns([1,1])
-    xaks = col1.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
-    yaks = col2.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
-
-    @st.cache(allow_output_mutation=True)
-    def scatplot1(df):
-        scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
-                           hover_name='Postinumeroalueen nimi')
-        scat1.update_layout(legend={'traceorder': 'normal'})
-        return scat1
-    scat1 = scatplot1(taulukkodata)
-    st.plotly_chart(scat1, use_container_width=True)
-    # save csv nappi
-    pno_csv = taulukkodata.to_crs(4326).to_csv().encode('utf-8')
-    st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
 # TABLE ..
 from st_aggrid.grid_options_builder import GridOptionsBuilder
@@ -92,17 +71,38 @@ data = AgGrid(taulukkodata,
 selected_row = data["selected_rows"]
 pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
 
-# map
+# kuntagraafi
+with st.expander(f"Kuntagraafi {valinta}", expanded=False):
+    featlist = taulukkodata.columns.tolist()
+    default_x = featlist.index('Rakennukset yhteensä')
+    default_y = featlist.index('Asukkaat yhteensä')
+    col1,col2 = st.columns([1,1])
+    xaks = col1.selectbox('Valitse X-akselin tieto', featlist, index=default_x)
+    yaks = col2.selectbox('Valitse Y-akselin tieto', featlist, index=default_y)
+
+    @st.cache(allow_output_mutation=True)
+    def scatplot1(df):
+        scat1 = px.scatter(df, x=xaks, y=yaks, color='Postinumeroalueen nimi',
+                           hover_name='Postinumeroalueen nimi')
+        scat1.update_layout(legend={'traceorder': 'normal'}, yaxis_title="Arvo")
+        return scat1
+    scat1 = scatplot1(taulukkodata)
+    st.plotly_chart(scat1, use_container_width=True)
+    # save csv nappi
+    pno_csv = taulukkodata.to_crs(4326).to_csv().encode('utf-8')
+    st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
+
+# rakennukset kartalla
 if len(selected_row) != 0:
-    with st.expander("Postinumeroalueen rakennukset kartalla", expanded=True):
+    with st.expander("Rakennukset kartalla", expanded=False):
         pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
         pno_plot = taulukkodata[taulukkodata['Postinumeroalueen nimi'] == pno_alue_nimi]
         rak = mtk_rak_pno(pno_plot)
         # tehokkuusluvut
         rak['kerrosala-arvio'] = 0
-        rak.loc[rak['kerrosluku'] == 2, 'kerrosala-arvio'] = rak.area * 5.5
-        rak.loc[rak['kerrosluku'] == 1, 'kerrosala-arvio'] = rak.area * 1.4
-
+        rak.loc[rak['kerrosluku'] == 2, 'kerrosala-arvio'] = rak.area * 4.5
+        rak.loc[rak['kerrosluku'] == 1, 'kerrosala-arvio'] = rak.area * 1.2
+        # korvaa ML-kaavalla edelliset
         col_show = ['rakennustyyppi','kayttotarkoitus','kerrosala-arvio','geometry']
         plot = pno_plot.overlay(rak,how='intersection')[col_show].to_crs(4326)
         plot['kerrosala-arvio'] = (plot['kerrosala-arvio'] / 10).apply(np.ceil).astype(int) * 10
@@ -112,11 +112,12 @@ if len(selected_row) != 0:
         fig = px.choropleth_mapbox(plot,
                                    geojson=plot.geometry,
                                    locations=plot.index,
+                                   title=f'{pno_alue_nimi}',
                                    color=plot['kayttotarkoitus'].astype(str),
                                    hover_name="kayttotarkoitus",
                                    hover_data=['kerrosala-arvio'],
                                    mapbox_style="carto-positron",
-                                   #color_continuous_scale=px.colors.qualitative.G10,
+                                   labels={'color':'Rakennustyyppi'},
                                    color_discrete_map={
                                        "Asuinrakennus": "brown",
                                        "Liike- tai julkinen rakennus": "orange",
@@ -144,7 +145,7 @@ if len(selected_row) != 0:
             raks_csv = raks_to_csv(plot.round(0))
             st.download_button(label="Lataa rakennukset CSV-tiedostona", data=raks_csv, file_name=f'rakennukset_{pno_alue_nimi}.csv', mime='text/csv')
 
-    with st.expander("Kerrosalamäärän jakautuminen"):
+    with st.expander("Kerrosalamäärän jakautuminen", expanded=False):
         with st.spinner('Analysoi rakennuksia...'):
             # poista ääripäät histogrammia varten
             high_limit = plot['kerrosala-arvio'].quantile(0.98)
@@ -168,23 +169,38 @@ if len(selected_row) != 0:
                                     "kayttotarkoitus": "Käyttötarkoitus"
                                  }
                                  )
+            fig_h.update_layout(legend={'traceorder': 'normal'}, yaxis_title="Kokoluokan määrä")
             st.plotly_chart(fig_h, use_container_width=True)
 
         selite = '''
-        Kerrosala-arviot ovat karkeita arvioita maastotietokannan rakennusten kerroslukuluokan ja rakennustyypin perusteella.
+        Kerrosala-arviot ovat karkeita arvioita _maastotietokannan_ rakennusten kerroslukuluokan ja rakennustyypin perusteella.
         ([MML](https://www.maanmittauslaitos.fi/rakennusten-kyselypalvelu/tekninen-kuvaus))
         Huom! Ala- ja yläkvantaaliprosentit (pienimmät ja suurimmat rakennukset) on poistettu graafista.
         '''
         st.markdown(selite, unsafe_allow_html=True)
 
 if len(selected_row) != 0:
-    with st.expander(f"Aluekehitys {pno_alue_nimi}"):
-        historia = pno_hist(valinta, pno_alue_nimi)
-        cols = historia.drop(columns=['index','Postinumeroalueen nimi','Vuosi']).columns.tolist()
-        def_ix = cols.index('Asukkaat yhteensä')
-        mycol = st.selectbox('Valitse tieto', cols, index=def_ix)
-        fig_pno_hist = px.line(historia, x="Vuosi", y=mycol, log_y=False)
+    with st.expander("Aluekehitys", expanded=False):
+        historia = pno_hist(valinta, pno_alue_nimi).drop(columns=['index','Postinumeroalueen nimi'])
+        hist = historia.drop(columns=['Vuosi'])
+        for column in hist:
+            hist[column] = round(hist[column] / (hist[column].iat[0] - 1),3).mul(100)
+        hist.replace([np.inf, -np.inf], np.nan, inplace=True)
+        cols = hist.columns.tolist()
+        #mycol = st.multiselect('Valitse tiedot', cols, default=hist.columns.tolist())#, index=def_ix)
+        hist['Vuosi'] = historia['Vuosi']
+        fig_pno_hist = px.line(hist, x="Vuosi", y=cols, title=f'{pno_alue_nimi} - Muutos prosentteina vuodesta 2015',
+                               labels={'variable':'Selite'})
         st.plotly_chart(fig_pno_hist, use_container_width=True)
+        st.caption("data: [stat.fi](https://www.stat.fi/tup/paavo/index.html)")
+        #
+        def raks_to_csv(df):
+            df_csv = df.drop(columns=['kerrosala-arvio'])
+            return df_csv.to_csv().encode('utf-8')
+
+        hist_csv = historia.to_csv().encode('utf-8')
+        st.download_button(label="Lataa CSV-tiedostona", data=hist_csv,file_name=f'Muutos_{pno_alue_nimi}.csv', mime='text/csv')
+
 
 
 footer_title = '''
