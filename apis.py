@@ -46,7 +46,7 @@ def pno_hist(kunta,pno):
     cols = ['Postinumeroalueen nimi', 'Vuosi',
             'Asukkaat yhteensä', 'Ammatillisen tutkinnon suorittaneet', 'Ylemmän korkeakoulututkinnon suorittaneet','Työttömät',
             'Lapsitaloudet', 'Vuokra-asunnoissa asuvat taloudet', 'Omistusasunnoissa asuvat taloudet', 'Talouksien mediaanitulot','Talouksien keskitulot',
-            'Rakennukset yhteensä', 'Kesämökit yhteensä', 'Asuntojen keskipinta-ala', 'Pientaloasunnot','Kerrostaloasunnot',
+            'Rakennukset yhteensä', 'Asuntojen keskipinta-ala', 'Pientaloasunnot','Kerrostaloasunnot',
             'Jalostuksen työpaikat', 'Palveluiden työpaikat'
             ]
     yrs = ['2015','2016','2017','2018','2019','2020','2021']

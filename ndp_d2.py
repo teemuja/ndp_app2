@@ -11,7 +11,7 @@ from apis import mtk_rak_pno
 from apis import pno_hist
 
 # page setup
-st.set_page_config(page_title="NDP App d3", layout="wide")
+st.set_page_config(page_title="NDP App d2", layout="wide")
 padding = 2
 st.markdown(f""" <style>
     .reportview-container .main .block-container{{
@@ -22,7 +22,7 @@ st.markdown(f""" <style>
     }} </style> """, unsafe_allow_html=True)
 
 header = '<p style="font-family:sans-serif; color:grey; font-size: 12px;">\
-        NDP project app2 V0.77 "Another Betaman"\
+        NDP project app2 V0.94 "Carelian Betaman"\
         </p>'
 st.markdown(header, unsafe_allow_html=True)
 
@@ -37,15 +37,16 @@ header_title = '''
 st.subheader(header_title)
 header_text = '''
 <p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">
-Naked Density Projekti on <a href="https://github.com/teemuja" target="_blank">Teemu Jaman</a> väitöskirjatutkimus Aalto Yliopistossa.
-Projektissa tutkitaan maankäytön tehokkuuden ja kaupunkirakenteen fyysisten piirteiden
-vaikutuksia kestävään kehitykseen data-analytiikan avulla.
+Naked Density Projekti on <a href="https://research.aalto.fi/en/persons/teemu-jama" target="_blank">Teemu Jaman</a> väitöskirjatutkimus Aalto Yliopistossa.
+Projektissa tutkitaan maankäytön tehokkuuden vaikutuksia kestävään kehitykseen data-analytiikan avulla.
 </p>
 '''
 st.markdown(header_text, unsafe_allow_html=True)
 
 st.markdown("""---""")
-st.title('Koko Suomi datana')
+st.title("Data Paper #2")
+st.markdown("Koko Suomi datana")
+st.markdown("###")
 
 kuntakoodit = pd.read_csv('config/kunta_dict.csv', index_col=False, header=0).astype(str)
 kuntalista = kuntakoodit['kunta'].tolist()
@@ -71,6 +72,7 @@ data = AgGrid(taulukkodata,
               update_mode=GridUpdateMode.SELECTION_CHANGED)
 selected_row = data["selected_rows"]
 pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
+pno_nimi = pno_alue['Postinumeroalueen nimi'][0]
 
 # kuntagraafi
 with st.expander(f"Kuntagraafi {valinta}", expanded=False):
@@ -94,7 +96,7 @@ with st.expander(f"Kuntagraafi {valinta}", expanded=False):
     st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
 if len(selected_row) != 0:
-    with st.expander("Aluekehitys", expanded=False):
+    with st.expander(f"Aluekehitys {pno_nimi}", expanded=False):
         pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
         historia = pno_hist(valinta, pno_alue_nimi).drop(columns=['index','Postinumeroalueen nimi'])
         hist = historia.drop(columns=['Vuosi'])
