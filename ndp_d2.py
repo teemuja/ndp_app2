@@ -72,7 +72,6 @@ data = AgGrid(taulukkodata,
               update_mode=GridUpdateMode.SELECTION_CHANGED)
 selected_row = data["selected_rows"]
 pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
-pno_nimi = selected_row[0]["Postinumeroalueen nimi"]
 
 # kuntagraafi
 with st.expander(f"Kuntagraafi {valinta}", expanded=False):
@@ -96,6 +95,7 @@ with st.expander(f"Kuntagraafi {valinta}", expanded=False):
     st.download_button(label="Lataa postinumeroalueet CSV-tiedostona", data=pno_csv, file_name=f'pno-alueet_{valinta}.csv',mime='text/csv')
 
 if len(selected_row) != 0:
+    pno_nimi = selected_row[0]["Postinumeroalueen nimi"]
     with st.expander(f"Aluekehitys {pno_nimi}", expanded=False):
         pno_alue_nimi = pno_alue['Postinumeroalueen nimi'][0]
         historia = pno_hist(valinta, pno_alue_nimi).drop(columns=['index','Postinumeroalueen nimi'])
