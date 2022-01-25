@@ -72,7 +72,7 @@ data = AgGrid(taulukkodata,
               update_mode=GridUpdateMode.SELECTION_CHANGED)
 selected_row = data["selected_rows"]
 pno_alue = pd.DataFrame(selected_row) # valinta taulukosta
-pno_nimi = pno_alue['Postinumeroalueen nimi'][0]
+pno_nimi = selected_row[0]["Postinumeroalueen nimi"]
 
 # kuntagraafi
 with st.expander(f"Kuntagraafi {valinta}", expanded=False):
