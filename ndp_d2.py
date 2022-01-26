@@ -22,7 +22,7 @@ st.markdown(f""" <style>
     }} </style> """, unsafe_allow_html=True)
 
 header = '<p style="font-family:sans-serif; color:grey; font-size: 12px;">\
-        NDP project app2 V0.94 "Carelian Betaman"\
+        NDP project app2 V0.94 "Carelian Beta"\
         </p>'
 st.markdown(header, unsafe_allow_html=True)
 
