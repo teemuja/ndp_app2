@@ -210,6 +210,6 @@ if len(selected_row) != 0:
 footer_title = '''
 ---
 :see_no_evil: **Naked Density Project**
-[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://lbesson.mit-license.org/) 
+[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/teemuja) 
 '''
 st.markdown(footer_title)
