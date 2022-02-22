@@ -32,7 +32,7 @@ px.defaults.height = 600
 
 # page title
 header_title = '''
-:see_no_evil: **Naked Density Project**
+**Naked Density Project**
 '''
 st.subheader(header_title)
 header_text = '''
@@ -209,7 +209,7 @@ if len(selected_row) != 0:
 
 footer_title = '''
 ---
-:see_no_evil: **Naked Density Project**
+**Naked Density Project**
 [![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/teemuja) 
 '''
 st.markdown(footer_title)
