@@ -37,7 +37,7 @@ header_title = '''
 st.subheader(header_title)
 header_text = '''
 <p style="font-family:sans-serif; color:Dimgrey; font-size: 12px;">
-Naked Density Projekti on <a href="https://research.aalto.fi/en/persons/teemu-jama" target="_blank">Teemu Jaman</a> väitöskirjatutkimus Aalto Yliopistossa.
+Naked Density Projekti on <a href="https://research.aalto.fi/en/persons/teemu-jama" target="_blank">Teemu Jaman</a> väitöskirjatutkimus Aalto-yliopistossa.
 Projektissa tutkitaan maankäytön tehokkuuden vaikutuksia kestävään kehitykseen data-analytiikan avulla.
 </p>
 '''
